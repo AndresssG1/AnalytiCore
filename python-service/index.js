@@ -28,9 +28,10 @@ app.post("/submit", async (req, res) => {
     await pool.query(`UPDATE jobs SET estado = 'PROCESANDO' WHERE id = $1`, [
       jobId,
     ]);
-    const response = await axios.post("http://java-service:8080/analyze", {
-      texto,
-    });
+    const response = await axios.post(
+      `${process.env.ANALYSIS_SERVICE_URL}/analyze`,
+      { texto }
+    );
 
     // Guardar resultado
     await pool.query(
