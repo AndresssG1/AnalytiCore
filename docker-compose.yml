@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: analyti_core
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - analyticore-network
+
+  python-service:
+    build:
+      context: ./python-service
+    container_name: python-service
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - java-service
+    networks:
+      - analyticore-network
+
+  java-service:
+    build:
+      context: ./java-service
+    container_name: java-service
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - analyticore-network
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - python-service
+    networks:
+      - analyticore-network
+
+volumes:
+  postgres_data:
+
+networks:
+  analyticore-network:
+    driver: bridge
