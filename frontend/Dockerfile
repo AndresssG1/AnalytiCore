@@ -6,9 +6,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-
-# ✅ Esta línea es clave para usar el entorno de producción
-RUN npm run build --mode production
+RUN npm run build
 
 # Servidor para producción (usamos nginx)
 FROM nginx:stable-alpine
