@@ -1,6 +1,5 @@
 # frontend/Dockerfile
 
-# Etapa de build
 FROM node:18-alpine AS build
 WORKDIR /app
 
@@ -9,18 +8,15 @@ COPY package*.json ./
 COPY .env.production .env.production    
 RUN npm install
 
+# Copiar el resto del código
 COPY . .
 
-# Construir la app en modo producción
-RUN npm run build --mode production
+# Construir el frontend (detecta .env.production automáticamente)
+RUN npm run build                       
 
-# Etapa de producción: usar nginx
+# Etapa final con Nginx para servir archivos
 FROM nginx:stable-alpine
-
-# Copiar archivos estáticos generados
 COPY --from=build /app/dist /usr/share/nginx/html
-
-# Configuración de Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
